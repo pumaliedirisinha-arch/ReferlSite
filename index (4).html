@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App UI</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #2f455c; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .rgb-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; filter: blur(90px);
+        }
+        .light {
+            position: absolute; border-radius: 50%;
+            opacity: 0.35; mix-blend-mode: screen;
+            animation: moveLights infinite alternate ease-in-out;
+        }
+        .light-red {
+            width: 60vw; height: 60vw; background: #ff0040;
+            top: -10%; left: -10%; animation-duration: 9s;
+        }
+        .light-green {
+            width: 50vw; height: 50vw; background: #00ff88;
+            bottom: -10%; right: -10%; animation-duration: 13s;
+        }
+        .light-blue {
+            width: 65vw; height: 65vw; background: #0044ff;
+            top: 20%; left: 30%; animation-duration: 11s;
+        }
+        @keyframes moveLights {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(15vw, 15vh) scale(1.1); }
+            100% { transform: translate(-15vw, -10vh) scale(0.9); }
+        }
+
+        .top-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .balance-pill {
+            background-color: #f0f2f5;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            padding: 4px 16px 4px 4px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .add-btn {
+            background-color: #4cd964;
+            color: #ffffff;
+            border-radius: 50%;
+            width: 34px; height: 34px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .add-btn .material-symbols-outlined {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .balance-text {
+            color: #002b5e;
+            font-weight: 800;
+            font-size: 17px;
+            margin-left: 10px;
+        }
+
+        .notification-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .page-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: calc(100vh - 75px);
+            z-index: 10;
+            overflow-y: auto; 
+            padding-bottom: 120px; 
+        }
+
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .page {
+            display: none; 
+            width: 100%; min-height: 100%;
+        }
+        .page.active-page {
+            display: block; 
+        }
+
+        .slider-box {
+            width: 92%;
+            aspect-ratio: 1 / 1;
+            margin: 110px auto 0 auto;
+            position: relative;
+            border-radius: 20px; 
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+
+        .slider-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; 
+            opacity: 0;
+            transition: opacity 1s ease-in-out; 
+        }
+
+        .slider-img.active-img {
+            opacity: 1; 
+        }
+
+        .voice-notes-container {
+            width: 92%;
+            margin: 25px auto 25px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .voice-note {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 8px 15px 8px 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .vn-avatar {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ff88;
+        }
+
+        .vn-play-btn {
+            background-color: transparent;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .vn-play-btn .material-symbols-outlined {
+            font-size: 32px;
+        }
+
+        .vn-slider {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .vn-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .description-box {
+            width: 88%;
+            margin: 0 auto 30px auto;
+            color: #ffffff;
+            font-size: 15px;
+            line-height: 1.6;
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        @keyframes rotateRGB {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .promo-container, .rgb-box {
+            width: 85%;
+            margin: 0 auto;
+            position: relative;
+            padding: 3px; 
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .promo-container::before, .rgb-box::before {
+            content: '';
+            position: absolute;
+            width: 250%;
+            height: 250%;
+            background: conic-gradient(from 0deg, transparent 60%, #00e5ff 80%, #0044ff 100%);
+            animation: rotateRGB 2.5s linear infinite;
+        }
+
+        .promo-content, .rgb-content {
+            position: relative;
+            z-index: 2;
+            background-color: #243647; 
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+
+        .promo-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .promo-text {
+            color: #00ff88;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .copy-btn, .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:active, .icon-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .ref-page-wrapper {
+            padding-top: 110px;
+            padding-bottom: 80px;
+            width: 90%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .ref-link-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            width: 100%;
+        }
+
+        .ref-link-text {
+            color: #00ff88;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+            font-weight: bold;
+        }
+
+        .share-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .share-main-btn {
+            background-color: #0044ff;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 68, 255, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .share-main-btn:active {
+            transform: scale(0.95);
+        }
+
+        .ref-info-content {
+            padding: 18px;
+            text-align: center;
+        }
+
+        .ref-info-text {
+            color: white;
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .white-count-box {
+            background-color: #ffffff;
+            width: 85%;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .count-title {
+            color: #7a7a7a;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .count-value {
+            color: #002b5e;
+            font-size: 38px;
+            font-weight: 900;
+        }
+
+        /* Withdrawal Page Styles */
+        .withdraw-wrapper {
+            padding-top: 110px;
+            width: 85%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .custom-input {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 16px;
+            padding: 18px 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .custom-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: normal;
+        }
+
+        .custom-input:focus {
+            border-color: #00e5ff;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .rgb-input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            padding: 18px 15px;
+            box-sizing: border-box;
+            outline: none;
+            font-weight: bold;
+        }
+
+        .rgb-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: normal;
+        }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: #ffffff;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0 15px 0;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            color: #7a7a7a; cursor: pointer; transition: all 0.3s ease; width: 30%;
+        }
+
+        .nav-item .material-symbols-outlined {
+            font-size: 28px; margin-bottom: 4px; transition: transform 0.2s ease;
+        }
+
+        .nav-item span:last-child {
+            font-size: 12px; font-weight: 600;
+        }
+
+        .nav-item.active { color: #0044ff; }
+        
+        .nav-item.active .material-symbols-outlined {
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        /* Standard Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #2f455c;
+            width: 90%;
+            max-height: 85vh;
+            border-radius: 20px;
+            padding: 20px 15px;
+            position: relative;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+        }
+
+        .modal-content::-webkit-scrollbar { display: none; }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .modal-banner {
+            width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
+            border-radius: 15px; margin-bottom: 20px;
+        }
+
+        /* Custom Toast/Popup for Errors */
+        .toast-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            z-index: 300; display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .toast-overlay.show { display: flex; opacity: 1; }
+        
+        .toast-box {
+            background-color: #1a2634; border: 2px solid #0044ff;
+            width: 80%; border-radius: 15px; padding: 25px 20px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.8); transition: transform 0.3s ease;
+        }
+        .toast-overlay.show .toast-box { transform: scale(1); }
+
+        .toast-icon {
+            font-size: 50px; color: #ff0040; margin-bottom: 10px;
+        }
+        .toast-icon.warning { color: #ffae00; }
+        .toast-icon.success { color: #00ff88; }
+
+        .toast-msg {
+            color: white; font-size: 16px; line-height: 1.5; margin-bottom: 20px; font-weight: bold;
+        }
+
+        .toast-btn {
+            background-color: #0044ff; color: white; border: none;
+            padding: 10px 30px; border-radius: 20px; font-size: 16px; font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rgb-background">
+        <div class="light light-red"></div>
+        <div class="light light-green"></div>
+        <div class="light light-blue"></div>
+    </div>
+
+    <div class="top-header">
+        <div class="balance-pill">
+            <div class="add-btn">
+                <span class="material-symbols-outlined">add</span>
+            </div>
+            <span class="balance-text" id="topBalance">0 Re</span>
+        </div>
+        <div class="notification-btn" onclick="openModal()">
+            <span class="material-symbols-outlined">notifications</span>
+        </div>
+    </div>
+
+    <div class="page-container">
+        
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page active-page">
+            <div class="slider-box">
+                <img src="https://i.postimg.cc/8CNx4Vr8/IMG-20260313-WA0020.jpg" class="slider-img active-img">
+                <img src="https://i.postimg.cc/fT4sdpCK/IMG-20260313-WA0021.jpg" class="slider-img">
+            </div>
+
+            <div class="voice-notes-container">
+                <div class="voice-note">
+                    <img src="https://i.postimg.cc/k565v80z/images-(5).jpg" class="vn-avatar">
+                    <button class="vn-play-btn" onclick="togglePlay(this, 'audio1')">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                    </button>
+                    <input type="range" class="vn-slider" id="slider1" value="0" min="0" max="100" oninput="seekAudio(this, 'audio1')">
+                    <audio id="audio1" src="https://media.vocaroo.com/mp3/1nh86szy0Wz2" ontimeupdate="updateProgress('audio1', 'slider1')" onended="resetBtn(this)"></audio>
+                </div>
+
+                <div class="voice-note">
+                    <img src="https://i.postimg.cc/k565v80z/images-(5).jpg" class="vn-avatar">
+                    <button class="vn-play-btn" onclick="togglePlay(this, 'audio2')">
+                        <span class="material-symbols-outlined">play_arrow</span>
+                    </button>
+                    <input type="range" class="vn-slider" id="slider2" value="0" min="0" max="100" oninput="seekAudio(this, 'audio2')">
+                    <audio id="audio2" src="https://media.vocaroo.com/mp3/1ihCjkfSRETO" ontimeupdate="updateProgress('audio2', 'slider2')" onended="resetBtn(this)"></audio>
+                </div>
+            </div>
+
+            <div class="description-box" style="margin-bottom: 40px;">
+                හැමදාම පරදින එක නවත්තමු! 🛑 1xBet Crash Game එකේ රහස මෙන්න. අදම WINUP70 කෝඩ් එකෙන් රෙජිස්ටර් වෙලා වෙනස වටහාගන්න. දිනුම ෂුවර්! 😎💰
+                <br><br>
+                Promo Code - WINUP70
+            </div>
+
+            <div class="promo-container" style="margin-bottom: 40px;">
+                <div class="promo-content">
+                    <span class="promo-text">WINUP70</span>
+                    <button class="copy-btn" onclick="copyPromo(this)">
+                        <span class="material-symbols-outlined">content_copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFERRAL PAGE -->
+        <div id="referral-page" class="page">
+            <div class="ref-page-wrapper">
+                
+                <div class="white-count-box" style="padding: 15px; width: 85%;">
+                    <span class="count-title">ඔබගේ ID අංකය</span>
+                    <span class="count-value" id="myUserIdText" style="font-size: 28px; color: #0044ff;">-----</span>
+                </div>
+
+                <div class="rgb-box" style="width: 100%;">
+                    <div class="rgb-content ref-link-content">
+                        <span id="userRefLink" class="ref-link-text">Loading...</span>
+                        <button class="icon-btn" onclick="copyReferralLink(this)">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="share-btn-wrapper">
+                    <button class="share-main-btn" onclick="shareReferralLink()">
+                        <span class="material-symbols-outlined">share</span>
+                        Share Link
+                    </button>
+                </div>
+
+                <div class="rgb-box" style="width: 100%;">
+                    <div class="rgb-content ref-info-content">
+                        <p class="ref-info-text">ඔබගෙ Refrel ලින්ක් එක සෙයා කර එක් රෙෆරල් කෙනුකුගෙන් රුපියල් 500 ගනෙ උපයන්න</p>
+                    </div>
+                </div>
+
+                <div class="white-count-box" style="margin-bottom: 20px;">
+                    <span class="count-title">Referral Count</span>
+                    <span class="count-value" id="refCountText">0</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- WITHDRAWAL PAGE (NEW) -->
+        <div id="withdrawal-page" class="page">
+            <div class="withdraw-wrapper">
+                
+                <h2 style="color: white; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Withdraw Funds</h2>
+
+                <!-- 1XBET PLAYER ID RGB Box -->
+                <div class="rgb-box" style="width: 100%;">
+                    <div class="rgb-content" style="padding: 2px;">
+                        <input type="text" id="playerIdInput" class="rgb-input" placeholder="1XBET PLAYER ID">
+                    </div>
+                </div>
+
+                <!-- AMOUNT Input -->
+                <input type="number" id="withdrawAmountInput" class="custom-input" placeholder="AMOUNT (Min: 12,500)">
+
+                <!-- Submit Button -->
+                <button class="share-main-btn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="processWithdrawal()">
+                    <span class="material-symbols-outlined">payments</span>
+                    Submit Withdrawal
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab(this, 'home-page')">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab(this, 'referral-page')">
+            <span class="material-symbols-outlined">group_add</span>
+            <span>Referral</span>
+        </div>
+        <div class="nav-item" onclick="switchTab(this, 'withdrawal-page')">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <span>Withdrawal</span>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MODAL -->
+    <div id="notificationModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal-btn" onclick="closeModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img src="https://i.postimg.cc/8CNx4Vr8/IMG-20260313-WA0020.jpg" class="modal-banner">
+            <div class="voice-note">
+                <img src="https://i.postimg.cc/k565v80z/images-(5).jpg" class="vn-avatar">
+                <button class="vn-play-btn" onclick="togglePlay(this, 'modalAudio')">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                </button>
+                <input type="range" class="vn-slider" id="modalSlider" value="0" min="0" max="100" oninput="seekAudio(this, 'modalAudio')">
+                <audio id="modalAudio" src="https://media.vocaroo.com/mp3/1nh86szy0Wz2" ontimeupdate="updateProgress('modalAudio', 'modalSlider')" onended="resetBtn(this)"></audio>
+            </div>
+            <div class="description-box" style="margin-top: 20px;">
+                හැමදාම පරදින එක නවත්තමු! 🛑 1xBet Crash Game එකේ රහස මෙන්න. අදම WINUP70 කෝඩ් එකෙන් රෙජිස්ටර් වෙලා වෙනස වටහාගන්න. දිනුම ෂුවර්! 😎💰
+            </div>
+            <div class="promo-container" style="margin-bottom: 10px;">
+                <div class="promo-content">
+                    <span class="promo-text">WINUP70</span>
+                    <button class="copy-btn" onclick="copyPromo(this)">
+                        <span class="material-symbols-outlined">content_copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM TOAST/ERROR MODAL -->
+    <div id="customToast" class="toast-overlay">
+        <div class="toast-box">
+            <span id="toastIcon" class="material-symbols-outlined toast-icon">error</span>
+            <p id="toastMessage" class="toast-msg">Error Message Here</p>
+            <button class="toast-btn" onclick="closeToast()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // UI & General Scripts
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slider-img');
+
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active-img');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active-img');
+        }, 5000); 
+
+        function switchTab(clickedElement, pageId) {
+            document.querySelector('.nav-item.active').classList.remove('active');
+            clickedElement.classList.add('active');
+
+            document.querySelector('.page.active-page').classList.remove('active-page');
+            document.getElementById(pageId).classList.add('active-page');
+        }
+
+        let currentAudio = null;
+        let currentPlayBtn = null;
+
+        function togglePlay(btn, audioId) {
+            const audio = document.getElementById(audioId);
+            const icon = btn.querySelector('.material-symbols-outlined');
+
+            if (currentAudio && currentAudio !== audio) {
+                currentAudio.pause();
+                if (currentPlayBtn) {
+                    currentPlayBtn.querySelector('.material-symbols-outlined').innerText = 'play_arrow';
+                }
+            }
+
+            if (audio.paused) {
+                audio.play();
+                icon.innerText = 'pause';
+                currentAudio = audio;
+                currentPlayBtn = btn;
+            } else {
+                audio.pause();
+                icon.innerText = 'play_arrow';
+                currentAudio = null;
+                currentPlayBtn = null;
+            }
+        }
+
+        function updateProgress(audioId, sliderId) {
+            const audio = document.getElementById(audioId);
+            const slider = document.getElementById(sliderId);
+            if (audio.duration) {
+                const percentage = (audio.currentTime / audio.duration) * 100;
+                slider.value = percentage;
+            }
+        }
+
+        function seekAudio(slider, audioId) {
+            const audio = document.getElementById(audioId);
+            if (audio.duration) {
+                const seekTime = (slider.value / 100) * audio.duration;
+                audio.currentTime = seekTime;
+            }
+        }
+
+        function resetBtn(audioElement) {
+            const voiceNoteDiv = audioElement.closest('.voice-note');
+            const icon = voiceNoteDiv.querySelector('.vn-play-btn .material-symbols-outlined');
+            icon.innerText = 'play_arrow';
+            const slider = voiceNoteDiv.querySelector('.vn-slider');
+            slider.value = 0;
+        }
+
+        function copyPromo(btnElement) {
+            const promoText = "WINUP70";
+            navigator.clipboard.writeText(promoText).then(() => {
+                const icon = btnElement.querySelector('.material-symbols-outlined');
+                icon.innerText = 'check';
+                icon.style.color = '#00ff88';
+                setTimeout(() => {
+                    icon.innerText = 'content_copy';
+                    icon.style.color = '#ffffff';
+                }, 2000);
+            });
+        }
+
+        function openModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.classList.add('show');
+            const modalAudio = document.getElementById('modalAudio');
+            const modalBtn = modal.querySelector('.vn-play-btn');
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                if (currentPlayBtn) currentPlayBtn.querySelector('.material-symbols-outlined').innerText = 'play_arrow';
+            }
+            modalAudio.play().then(() => {
+                modalBtn.querySelector('.material-symbols-outlined').innerText = 'pause';
+                currentAudio = modalAudio; currentPlayBtn = modalBtn;
+            }).catch(e => console.log("Auto-play prevented"));
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.classList.remove('show');
+            const modalAudio = document.getElementById('modalAudio');
+            modalAudio.pause(); modalAudio.currentTime = 0;
+            modal.querySelector('.vn-play-btn .material-symbols-outlined').innerText = 'play_arrow';
+            document.getElementById('modalSlider').value = 0;
+            if(currentAudio === modalAudio) { currentAudio = null; currentPlayBtn = null; }
+        }
+
+        // Custom Toast Functions
+        function showCustomToast(message, type) {
+            const toast = document.getElementById('customToast');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+
+            msgEl.innerText = message;
+            
+            if(type === 'error') {
+                iconEl.innerText = 'error';
+                iconEl.className = 'material-symbols-outlined toast-icon';
+            } else if(type === 'warning') {
+                iconEl.innerText = 'warning';
+                iconEl.className = 'material-symbols-outlined toast-icon warning';
+            } else {
+                iconEl.innerText = 'check_circle';
+                iconEl.className = 'material-symbols-outlined toast-icon success';
+            }
+
+            toast.classList.add('show');
+        }
+
+        function closeToast() {
+            document.getElementById('customToast').classList.remove('show');
+        }
+
+        // Share buttons
+        window.fullReferralLink = ""; 
+        function copyReferralLink(btnElement) {
+            const copyText = "1XBET නිකම් ඉදලා සල්ලි හොයමු " + window.fullReferralLink;
+            navigator.clipboard.writeText(copyText).then(() => {
+                const icon = btnElement.querySelector('.material-symbols-outlined');
+                icon.innerText = 'check'; icon.style.color = '#00ff88';
+                setTimeout(() => { icon.innerText = 'content_copy'; icon.style.color = '#ffffff'; }, 2000);
+            });
+        }
+
+        function shareReferralLink() {
+            const shareText = "1XBET නිකම් ඉදලා සල්ලි හොයමු " + window.fullReferralLink;
+            if (navigator.share) {
+                navigator.share({ title: '1XBET', text: '1XBET නිකම් ඉදලා සල්ලි හොයමු', url: window.fullReferralLink }).catch(err => console.log(err));
+            } else {
+                navigator.clipboard.writeText(shareText);
+                showCustomToast("Link copied to clipboard!", "success");
+            }
+        }
+
+        // Global variables for withdrawal logic
+        window.userBalance = 0;
+        window.userReferrals = 0;
+
+        function processWithdrawal() {
+            const playerId = document.getElementById('playerIdInput').value.trim();
+            const amount = parseInt(document.getElementById('withdrawAmountInput').value);
+
+            if(playerId === "") {
+                showCustomToast("කරුණාකර ඔබගේ 1XBET PLAYER ID එක ඇතුලත් කරන්න.", "error");
+                return;
+            }
+            if(isNaN(amount) || amount <= 0) {
+                showCustomToast("කරුණාකර නිවැරදි මුදලක් ඇතුලත් කරන්න.", "error");
+                return;
+            }
+            if(amount < 12500) {
+                showCustomToast("අවම Withdrawal මුදල රු. 12,500 කි.", "error");
+                return;
+            }
+            if(amount > window.userBalance) {
+                showCustomToast("ඔබගේ ගිණුමේ ප්‍රමාණවත් මුදලක් නොමැත.", "error");
+                return;
+            }
+
+            // Referral Doubling Logic (40 -> 80 -> 160 -> 320...)
+            let requiredReferrals = 40;
+            while (window.userReferrals >= requiredReferrals) {
+                requiredReferrals = requiredReferrals * 2;
+            }
+
+            showCustomToast(`ඔබට මෙම මුදල ලබා ගැනීමට තවත් Referral ${requiredReferrals - window.userReferrals} ක් අවශ්‍යයි. (මුළු Referral ${requiredReferrals} ක් අවශ්‍යයි).`, "warning");
+        }
+    </script>
+
+    <!-- Firebase System Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getDatabase, ref, get, set, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyVbc1dfxw22T54lnIGInERB3OvV7eGUs",
+            authDomain: "referls.firebaseapp.com",
+            databaseURL: "https://referls-default-rtdb.firebaseio.com",
+            projectId: "referls",
+            storageBucket: "referls.firebasestorage.app",
+            messagingSenderId: "3852449952",
+            appId: "1:3852449952:web:cef74b0a726286d4ec31c5",
+            measurementId: "G-JP55437W6C"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
+
+        async function initReferralSystem() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCodeFromURL = urlParams.get('ref');
+
+            let myReferralCode = localStorage.getItem('myRefCode');
+
+            if (!myReferralCode) {
+                myReferralCode = Math.floor(10000 + Math.random() * 90000).toString();
+                localStorage.setItem('myRefCode', myReferralCode);
+
+                let initialBalance = 0;
+
+                if (refCodeFromURL && refCodeFromURL !== myReferralCode) {
+                    const referrerRef = ref(db, 'users/' + refCodeFromURL);
+                    try {
+                        const snapshot = await get(referrerRef);
+                        if (snapshot.exists()) {
+                            initialBalance = 500;
+                            runTransaction(referrerRef, (user) => {
+                                if (user) {
+                                    user.balance = (user.balance || 0) + 500;
+                                    user.referralCount = (user.referralCount || 0) + 1;
+                                }
+                                return user;
+                            });
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+
+                await set(ref(db, 'users/' + myReferralCode), {
+                    balance: initialBalance,
+                    referralCount: 0
+                });
+
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            document.getElementById('myUserIdText').innerText = myReferralCode;
+            const baseUrl = window.location.origin + window.location.pathname;
+            window.fullReferralLink = baseUrl + "?ref=" + myReferralCode;
+            document.getElementById('userRefLink').innerText = window.fullReferralLink;
+
+            const myUserRef = ref(db, 'users/' + myReferralCode);
+            onValue(myUserRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Update UI
+                    document.getElementById('topBalance').innerText = `${data.balance} Re`;
+                    document.getElementById('refCountText').innerText = data.referralCount;
+                    
+                    // Update global JS variables for Withdrawal check
+                    window.userBalance = data.balance || 0;
+                    window.userReferrals = data.referralCount || 0;
+                }
+            });
+        }
+
+        initReferralSystem();
+    </script>
+
+</body>
+</html>
