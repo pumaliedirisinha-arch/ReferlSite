@@ -657,7 +657,7 @@
         }
     </script>
 
-    <!-- Firebase System Script with IP Block Logic -->
+    <!-- Firebase System Script with IP Block & Time Tracking Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
@@ -682,38 +682,30 @@
 
         async function checkIPAndInit() {
             try {
-                // Get User IP
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 const userIP = data.ip;
                 const safeIP = userIP.replace(/\./g, '_');
 
-                // Realtime check if IP is blocked
                 const blockRef = ref(db, 'blocked_ips/' + safeIP);
                 onValue(blockRef, (snapshot) => {
                     if (snapshot.exists()) {
-                        // IP is blocked -> Show RED screen, hide everything else
                         document.getElementById('blockedScreen').style.display = 'flex';
-                        
                         document.querySelectorAll('body > div:not(#blockedScreen)').forEach(el => {
                             el.style.display = 'none';
                         });
                     } else {
-                        // IP is not blocked -> Hide RED screen, show normal app
                         document.getElementById('blockedScreen').style.display = 'none';
-                        
                         document.querySelectorAll('body > div:not(#blockedScreen)').forEach(el => {
-                            el.style.display = ''; 
+                            el.style.display = '';
                         });
 
-                        // Start referral system only once
                         if (!appInitialized) {
                             initReferralSystem(userIP);
                             appInitialized = true;
                         }
                     }
                 });
-
             } catch (e) {
                 console.error("IP Check failed", e);
                 if (!appInitialized) {
@@ -745,6 +737,7 @@
                                 if (user) {
                                     user.balance = (user.balance || 0) + 500;
                                     user.referralCount = (user.referralCount || 0) + 1;
+                                    user.lastEarnedAt = Date.now(); 
                                 }
                                 return user;
                             });
@@ -754,16 +747,15 @@
                     }
                 }
 
-                // Save new user with IP
                 await set(ref(db, 'users/' + myReferralCode), {
                     balance: initialBalance,
                     referralCount: 0,
-                    ip: currentUserIP
+                    ip: currentUserIP,
+                    lastEarnedAt: Date.now() 
                 });
 
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else {
-                // Update IP for existing user
                 set(ref(db, 'users/' + myReferralCode + '/ip'), currentUserIP);
             }
 
@@ -785,7 +777,6 @@
             });
         }
 
-        // Start the logic
         checkIPAndInit();
     </script>
 
