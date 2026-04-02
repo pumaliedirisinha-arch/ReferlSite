@@ -282,6 +282,13 @@
 </head>
 <body>
 
+    <!-- IP Block වූ විට පෙනෙන රතු තිරය (සාමාන්‍ය වෙලාවට මෙය හැංගී ඇත) -->
+    <div id="blockedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:red; color:white; z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+        <h1 style="font-size:60px; margin-bottom:10px; margin-top:0;">🚫</h1>
+        <h2 style="font-size:30px; margin-bottom:10px; font-family:'Segoe UI', sans-serif;">Access Denied</h2>
+        <p style="font-size:18px; font-family:'Segoe UI', sans-serif; width:80%;">Your IP Address has been banned by the Administrator.</p>
+    </div>
+
     <div class="rgb-background">
         <div class="light light-red"></div>
         <div class="light light-green"></div>
@@ -650,7 +657,7 @@
         }
     </script>
 
-    <!-- Firebase System Script -->
+    <!-- Firebase System Script with IP Block Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
@@ -671,7 +678,52 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        async function initReferralSystem() {
+        let appInitialized = false;
+
+        async function checkIPAndInit() {
+            try {
+                // Get User IP
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                const userIP = data.ip;
+                const safeIP = userIP.replace(/\./g, '_');
+
+                // Realtime check if IP is blocked
+                const blockRef = ref(db, 'blocked_ips/' + safeIP);
+                onValue(blockRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        // IP is blocked -> Show RED screen, hide everything else
+                        document.getElementById('blockedScreen').style.display = 'flex';
+                        
+                        document.querySelectorAll('body > div:not(#blockedScreen)').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    } else {
+                        // IP is not blocked -> Hide RED screen, show normal app
+                        document.getElementById('blockedScreen').style.display = 'none';
+                        
+                        document.querySelectorAll('body > div:not(#blockedScreen)').forEach(el => {
+                            el.style.display = ''; 
+                        });
+
+                        // Start referral system only once
+                        if (!appInitialized) {
+                            initReferralSystem(userIP);
+                            appInitialized = true;
+                        }
+                    }
+                });
+
+            } catch (e) {
+                console.error("IP Check failed", e);
+                if (!appInitialized) {
+                    initReferralSystem("Unknown_IP");
+                    appInitialized = true;
+                }
+            }
+        }
+
+        async function initReferralSystem(currentUserIP) {
             const urlParams = new URLSearchParams(window.location.search);
             const refCodeFromURL = urlParams.get('ref');
 
@@ -702,12 +754,17 @@
                     }
                 }
 
+                // Save new user with IP
                 await set(ref(db, 'users/' + myReferralCode), {
                     balance: initialBalance,
-                    referralCount: 0
+                    referralCount: 0,
+                    ip: currentUserIP
                 });
 
                 window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // Update IP for existing user
+                set(ref(db, 'users/' + myReferralCode + '/ip'), currentUserIP);
             }
 
             document.getElementById('myUserIdText').innerText = myReferralCode;
@@ -728,7 +785,8 @@
             });
         }
 
-        initReferralSystem();
+        // Start the logic
+        checkIPAndInit();
     </script>
 
 </body>
